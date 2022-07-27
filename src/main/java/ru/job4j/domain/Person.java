@@ -56,7 +56,6 @@ public class Person {
         return java.util.Objects.hash(super.hashCode(), id, login, password);
     }
 
-    @java.lang.Override
     public java.lang.String toString() {
         return "Person{"
                 + "id=" + id
