@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class Person {
@@ -13,6 +15,18 @@ public class Person {
     private String login;
     private String password;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
+    public static Person of(String login, String password, Employee employee) {
+        Person person = new Person();
+        person.login = login;
+        person.password = password;
+        person.employee = employee;
+        return person;
+    }
+
     public int getId() {
         return id;
     }
@@ -21,46 +35,56 @@ public class Person {
         this.id = id;
     }
 
-    public java.lang.String getLogin() {
+    public String getLogin() {
         return login;
     }
 
-    public void setLogin(java.lang.String login) {
+    public void setLogin(String login) {
         this.login = login;
     }
 
-    public java.lang.String getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(java.lang.String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public boolean equals(Object object) {
-        if (this == object) {
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (object == null || getClass() != object.getClass()) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
-        Person person = (Person) object;
-        return id == person.id && java.util.Objects.equals(login, person.login)
-                && java.util.Objects.equals(password, person.password);
+        Person person = (Person) o;
+        return id == person.id && Objects.equals(login, person.login)
+                && Objects.equals(password, person.password)
+                && Objects.equals(employee, person.employee);
     }
 
+    @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), id, login, password);
+        return Objects.hash(id, login, password, employee);
     }
 
-    public java.lang.String toString() {
+    @Override
+    public String toString() {
         return "Person{"
                 + "id=" + id
-                + ", login=" + login
-                + ", password=" + password
+                + ", login='" + login + '\''
+                + ", password='" + password + '\''
+                + ", employee=" + employee
                 + '}';
     }
 }

@@ -1,8 +1,12 @@
 package ru.job4j.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import ru.job4j.domain.Employee;
 import ru.job4j.domain.Person;
 import ru.job4j.repository.PersonRepository;
 
@@ -13,22 +17,37 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/person")
 public class PersonController {
-    private final PersonRepository persons;
+    private static final Logger LOG = LoggerFactory.getLogger(PersonController.class.getSimpleName());
+    private final PersonRepository personRep;
+    private final RestTemplate rest;
+    private static final String API_EMPLOYEE = "http://localhost:8080/employee/";
+    private static final String API_EMPLOYEE_ID = "http://localhost:8080/employee/{id}";
 
-    public PersonController(final PersonRepository persons) {
-        this.persons = persons;
+    public PersonController(PersonRepository personRep, RestTemplate rest) {
+        this.personRep = personRep;
+        this.rest = rest;
     }
 
     @GetMapping("/")
     public List<Person> findAll() {
+        LOG.info("Get All persons");
         List<Person> lstPerson = new ArrayList<Person>();
-        this.persons.findAll().forEach(lstPerson::add);
+        this.personRep.findAll().forEach(lstPerson::add);
+        for (Person person : lstPerson) {
+            person.setEmployee(
+                    rest.getForObject(API_EMPLOYEE_ID, Employee.class, person.getEmployee().getId())
+            );
+        }
         return lstPerson;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        Optional<Person> person = this.persons.findById(id);
+        LOG.info("Person find by id={}", id);
+        Optional<Person> person = this.personRep.findById(id);
+        person.ifPresent(value -> value.setEmployee(
+                rest.getForObject(API_EMPLOYEE_ID, Employee.class, value.getEmployee().getId())
+        ));
         return new ResponseEntity<Person>(
                 person.orElse(new Person()),
                 person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
@@ -37,23 +56,35 @@ public class PersonController {
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
+        LOG.info("Create person={}", person);
+        Employee employee = rest.postForObject(API_EMPLOYEE, person.getEmployee(), Employee.class);
+        person.setEmployee(employee);
         return new ResponseEntity<Person>(
-                this.persons.save(person),
+                this.personRep.save(person),
                 HttpStatus.CREATED
         );
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        this.persons.save(person);
+        LOG.info("Update person={}", person);
+        Employee employee = rest.postForObject(API_EMPLOYEE, person.getEmployee(), Employee.class);
+        person.setEmployee(employee);
+        this.personRep.save(person);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
+        LOG.info(" Delete person by id={}", id);
+        Optional<Person> personOpt = this.personRep.findById(id);
+        if (personOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         Person person = new Person();
         person.setId(id);
-        this.persons.delete(person);
-        return ResponseEntity.ok().build();
+        this.personRep.delete(person);
+        return ResponseEntity.
+                ok().build();
     }
 }
