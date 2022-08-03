@@ -1,9 +1,5 @@
 package ru.job4j.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -19,12 +15,25 @@ public class Person {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    public static Person of(String login, String password, Employee employee) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+    public static Person of(String login, String password, Employee employee, Role role) {
         Person person = new Person();
         person.login = login;
         person.password = password;
         person.employee = employee;
+        person.role = role;
         return person;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public int getId() {
@@ -70,12 +79,13 @@ public class Person {
         Person person = (Person) o;
         return id == person.id && Objects.equals(login, person.login)
                 && Objects.equals(password, person.password)
-                && Objects.equals(employee, person.employee);
+                && Objects.equals(employee, person.employee)
+                && Objects.equals(role, person.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, password, employee);
+        return Objects.hash(id, login, password, employee, role);
     }
 
     @Override
@@ -85,6 +95,7 @@ public class Person {
                 + ", login='" + login + '\''
                 + ", password='" + password + '\''
                 + ", employee=" + employee
+                + ", role=" + role
                 + '}';
     }
 }
