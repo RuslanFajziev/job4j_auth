@@ -52,3 +52,11 @@ VALUES ('Как я сервер поднимал колен', 'Однажды п
         (select distinct id from room where id = 1), (select distinct id from person where login = 'parsentev')),
        ('Как запоминать много инфы', 'Чтобы запомниать много инвыб нужно много спать и бла бла бал...',
         (select distinct id from room where id = 2), (select distinct id from person where login = 'ivan'));
+
+create table logins(
+    id serial primary key not null,
+    username varchar(2000),
+    password varchar(2000)
+);
+
+insert into logins(username, password) VALUES ('admin', '$2a$10$bUDTdsOoEUQ3CiTdmYCZMeuCDi3voY31X.QLHR0PUSdyb9sdw87Q2');
