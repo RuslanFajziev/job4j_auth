@@ -52,13 +52,12 @@ public class Login {
             return false;
         }
         Login login = (Login) o;
-        return id == login.id && Objects.equals(username, login.username)
-                && Objects.equals(password, login.password);
+        return id == login.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password);
+        return Objects.hash(id);
     }
 
     @Override

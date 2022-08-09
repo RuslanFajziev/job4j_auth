@@ -77,15 +77,12 @@ public class Person {
             return false;
         }
         Person person = (Person) o;
-        return id == person.id && Objects.equals(login, person.login)
-                && Objects.equals(password, person.password)
-                && Objects.equals(employee, person.employee)
-                && Objects.equals(role, person.role);
+        return id == person.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, password, employee, role);
+        return Objects.hash(id);
     }
 
     @Override

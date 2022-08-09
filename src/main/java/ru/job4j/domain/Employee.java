@@ -73,14 +73,12 @@ public class Employee {
             return false;
         }
         Employee employee = (Employee) o;
-        return id == employee.id && Objects.equals(name, employee.name)
-                && Objects.equals(surname, employee.surname)
-                && Objects.equals(inn, employee.inn) && Objects.equals(employmentDate, employee.employmentDate);
+        return id == employee.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, inn, employmentDate);
+        return Objects.hash(id);
     }
 
     @Override

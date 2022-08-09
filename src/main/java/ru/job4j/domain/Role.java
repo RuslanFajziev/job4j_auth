@@ -49,11 +49,11 @@ public class Role {
             return false;
         }
         Role role = (Role) o;
-        return id == role.id && Objects.equals(name, role.name);
+        return id == role.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id);
     }
 }

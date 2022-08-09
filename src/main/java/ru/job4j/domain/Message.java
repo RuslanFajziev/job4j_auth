@@ -89,13 +89,11 @@ public class Message {
             return false;
         }
         Message message = (Message) o;
-        return id == message.id && Objects.equals(tittle, message.tittle)
-                && Objects.equals(bodyMessage, message.bodyMessage)
-                && Objects.equals(room, message.room) && Objects.equals(person, message.person);
+        return id == message.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tittle, bodyMessage, room, person);
+        return Objects.hash(id);
     }
 }
