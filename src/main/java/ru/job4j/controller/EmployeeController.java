@@ -1,5 +1,6 @@
 package ru.job4j.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -8,9 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Employee;
 import ru.job4j.repository.EmployeeRepository;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/employee")
@@ -18,9 +25,12 @@ public class EmployeeController {
     private static final Logger LOG = LoggerFactory.getLogger(EmployeeController.class.getSimpleName());
     private final EmployeeRepository employeeRep;
 
-    public EmployeeController(final EmployeeRepository employeeRep) {
+    public EmployeeController(EmployeeRepository employeeRep, ObjectMapper objectMapper) {
         this.employeeRep = employeeRep;
+        this.objectMapper = objectMapper;
     }
+
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/")
     public List<Employee> findAll() {
@@ -31,22 +41,49 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> findById(@PathVariable int id) {
-        LOG.info("Employee find by id={}", id);
-        Optional<Employee> person = this.employeeRep.findById(id);
-        return new ResponseEntity<Employee>(
-                person.orElse(new Employee()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
+    public Employee findById(@PathVariable int id) {
+        Optional<Employee> employee = this.employeeRep.findById(id);
+//        return new ResponseEntity<Employee>(
+//                person.orElse(new Employee()),
+//                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+//        );
+        if (employee.isPresent()) {
+            LOG.info("Employee find by id={}", id);
+        } else {
+            LOG.info("Employee find by id={} is not found, check requisites.", id);
+        }
+        return employee.orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Employee is not found. Please, check requisites."
+        ));
     }
 
     @PostMapping("/")
     public ResponseEntity<Employee> create(@RequestBody Employee employee) {
+        if (employee.getName() == null || employee.getSurname() == null || employee.getInn() == null) {
+            throw new NullPointerException("Employee, name or surname, or inn mustn't be empty");
+        }
+        if (employee.getInn().length() < 6) {
+            throw new IllegalArgumentException("Invalid inn length < 6");
+        }
         LOG.info("Create employee={}", employee);
         return new ResponseEntity<Employee>(
                 this.employeeRep.save(employee),
                 HttpStatus.CREATED
         );
+    }
+
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    public void exceptionHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() {
+            {
+                put("message", "Invalid inn");
+                put("details", e.getMessage());
+                put("type", e.getClass());
+            }
+        }));
+        LOG.error(e.getLocalizedMessage());
     }
 
     @PutMapping("/")
