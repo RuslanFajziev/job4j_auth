@@ -3,12 +3,14 @@ package ru.job4j.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Role;
 import ru.job4j.repository.RoleRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,30 @@ public class RoleController {
 
     public RoleController(final RoleRepository roleRep) {
         this.roleRep = roleRep;
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        return ResponseEntity.ok("test");
+    }
+
+    @GetMapping("/test2")
+    public ResponseEntity<?> test2() {
+        return ResponseEntity.of(
+                Optional.of(new HashMap<>() {{
+                    put("key", "value");
+                }}));
+    }
+
+    @GetMapping("/test3")
+    public ResponseEntity<?> test3() {
+        String body = "{\"key\":\"value\"}";
+        var entity = ResponseEntity.status(HttpStatus.CONFLICT)
+                .header("Job4jCustomHeader", "job4j")
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentLength(body.length())
+                .body(body);
+        return entity;
     }
 
     @GetMapping("/")

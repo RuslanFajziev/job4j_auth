@@ -25,12 +25,12 @@ public class EmployeeController {
     private static final Logger LOG = LoggerFactory.getLogger(EmployeeController.class.getSimpleName());
     private final EmployeeRepository employeeRep;
 
+    private final ObjectMapper objectMapper;
+
     public EmployeeController(EmployeeRepository employeeRep, ObjectMapper objectMapper) {
         this.employeeRep = employeeRep;
         this.objectMapper = objectMapper;
     }
-
-    private final ObjectMapper objectMapper;
 
     @GetMapping("/")
     public List<Employee> findAll() {
@@ -43,10 +43,6 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public Employee findById(@PathVariable int id) {
         Optional<Employee> employee = this.employeeRep.findById(id);
-//        return new ResponseEntity<Employee>(
-//                person.orElse(new Employee()),
-//                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-//        );
         if (employee.isPresent()) {
             LOG.info("Employee find by id={}", id);
         } else {
