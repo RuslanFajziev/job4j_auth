@@ -12,6 +12,7 @@ import ru.job4j.repository.EmployeeRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 
@@ -88,7 +89,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/")
-    public Employee patch(@RequestBody EmployeeDTO employeeDTO) {
+    public Employee patch(@Valid @RequestBody EmployeeDTO employeeDTO) {
         var employee = this.employeeRep.findById(employeeDTO.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         employee.setName(employeeDTO.getName());

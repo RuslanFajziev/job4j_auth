@@ -1,14 +1,20 @@
 package ru.job4j.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Objects;
 
 @Entity
 public class EmployeeDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull(message = "Id must be non null")
+    @Min(value = 1, message = "Id should not be less than 1")
     private int id;
+    @NotBlank(message = "Name must be not empty")
     private String name;
+
+    @NotBlank(message = "Surname must be not empty")
     private String surname;
 
     public static EmployeeDTO of(String name, String surname) {
