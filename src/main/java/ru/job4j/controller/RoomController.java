@@ -10,6 +10,7 @@ import ru.job4j.repository.RoomRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,6 +55,24 @@ public class RoomController {
         LOG.info("Update room={}", room);
         this.roomRep.save(room);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<Room> patch(@RequestBody Map<String, String> body) {
+        int idBody = Integer.valueOf(body.get("id"));
+        Optional<Room> roomOpt = this.roomRep.findById(idBody);
+        if (roomOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        var room = Room.of(body.get("name"));
+        room.setId(idBody);
+        LOG.info("Patch room={}", room);
+        this.roomRep.save(room);
+        return new ResponseEntity<Room>(
+                this.roomRep.save(room),
+                HttpStatus.ACCEPTED
+        );
     }
 
     @DeleteMapping("/{id}")

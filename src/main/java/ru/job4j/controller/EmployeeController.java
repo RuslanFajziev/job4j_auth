@@ -7,15 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Employee;
+import ru.job4j.domain.EmployeeDTO;
 import ru.job4j.repository.EmployeeRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.web.server.ResponseStatusException;
 
@@ -87,6 +85,16 @@ public class EmployeeController {
         LOG.info("Update employee={}", employee);
         this.employeeRep.save(employee);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/")
+    public Employee patch(@RequestBody EmployeeDTO employeeDTO) {
+        var employee = this.employeeRep.findById(employeeDTO.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        employee.setName(employeeDTO.getName());
+        employee.setSurname(employeeDTO.getSurname());
+        LOG.info("Patch employee={}", employee);
+        return this.employeeRep.save(employee);
     }
 
     @DeleteMapping("/{id}")
