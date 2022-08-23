@@ -68,7 +68,6 @@ public class RoomController {
         var room = Room.of(body.get("name"));
         room.setId(idBody);
         LOG.info("Patch room={}", room);
-        this.roomRep.save(room);
         return new ResponseEntity<Room>(
                 this.roomRep.save(room),
                 HttpStatus.ACCEPTED
